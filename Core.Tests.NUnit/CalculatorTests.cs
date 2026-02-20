@@ -1,17 +1,23 @@
 ﻿using Core.Services;
+using FluentAssertions;
 using Moq;
+using System.Linq.Expressions;
 
 namespace Core.Tests.NUnit
 {
     public class CalculatorTests
     {
         private CalculatorService _sut;
+        private Mock<ICalculatorService> _mock;
 
         [SetUp]
         public void Setup()
         {
             _sut = new CalculatorService();
+            _mock = new Mock<ICalculatorService>();
         }
+
+        //NUnit tests
 
         [TestCase(2, 3, ExpectedResult = 5)]
         [TestCase(3, 4, ExpectedResult = 7)] 
@@ -47,53 +53,120 @@ namespace Core.Tests.NUnit
         [Test]
         public void MockingInterface_ShouldReturnConfiguredSumValue()
         {
-            var mock = new Mock<ICalculatorService>();
-
-            mock.Setup(x => x.Add(10, 20)).Returns(30);
-
-            var result = mock.Object.Add(10, 20);
+            var result = MockAndReturnValue(x => x.Add(10, 20), 30);
 
             Assert.That(result, Is.EqualTo(30));
 
-            mock.Verify(x => x.Add(10, 20), Times.Once);
+            _mock.Verify(x => x.Add(10, 20), Times.Once);
         }
 
         [Test]
         public void MockingInterface_ShouldReturnConfiguredDifferenceValue()
         {
-            var mock = new Mock<ICalculatorService>();
-
-            mock.Setup(x => x.Subtract(10, 20)).Returns(-10);
-
-            var result = mock.Object.Subtract(10, 20);
+            var result = MockAndReturnValue(x => x.Subtract(10, 20), -10);
 
             Assert.That(result, Is.EqualTo(-10));
 
-            mock.Verify(x => x.Subtract(10, 20), Times.Once);
+            _mock.Verify(x => x.Subtract(10, 20), Times.Once);
         }
 
         [Test]
         public async Task MockingInterface_ShouldReturnConfiguredProductValue()
         {
-            var mock = new Mock<ICalculatorService>();
-
-            mock.Setup(x => x.MultiplyAsync(10, 20).Result).Returns(200);
-
-            var result = await mock.Object.MultiplyAsync(10, 20);
+            var result = MockAndReturnValue(x => x.MultiplyAsync(10, 20).Result, 200);
 
             Assert.That(result, Is.EqualTo(200));
 
-            mock.Verify(x => x.MultiplyAsync(10, 20), Times.Once);
+            _mock.Verify(x => x.MultiplyAsync(10, 20), Times.Once);
         }
 
         [Test]
         public async Task MultiplyAsync_ShouldSetADelay()
         {
+            var task = _sut.MultiplyAsync(10, 20);
+
+            Assert.That(task.IsCompleted, Is.EqualTo(false));
+        }
+
+
+        //FluentAssertions tests
+
+        [TestCase(2, 3)]
+        [TestCase(3, 4)]
+        [TestCase(-4, -5)]
+        [TestCase(0, 0)]
+        public void Add_ShouldReturnCorrectSum_With_FluentAssertions_components(int a, int b)
+        {
+            _sut.Add(a, b).Should().Be(a + b);
+        }
+
+        [TestCase(2, 3)]
+        [TestCase(4, 3)]
+        [TestCase(-4, -5)]
+        [TestCase(0, 0)]
+        [TestCase(-5, 5)]
+        public void Subtract_ShouldReturnCorrectDifference_With_FluentAssertions_components(int a, int b)
+        {
+            _sut.Subtract(a, b).Should().Be(a - b);
+        }
+
+        [TestCase(2, 3)]
+        [TestCase(4, 3)]
+        [TestCase(-4, -5)]
+        [TestCase(0, 0)]
+        [TestCase(-5, 5)]
+        public async Task MultiplyAsync_ShouldReturnCorrectProduct_With_FluentAssertions_components(int a, int b)
+        {
+            var result = await _sut.MultiplyAsync(a, b);
+
+            result.Should().Be(a * b);
+        }
+
+        [Test]
+        public void MockingInterface_ShouldReturnConfiguredSumValue_With_FluentAssertions_components()
+        {
+            var result = MockAndReturnValue(x => x.Add(10, 20), 30);
+
+            result.Should().Be(30);
+
+            _mock.Verify(x => x.Add(10, 20), Times.Once);
+        }
+
+        [Test]
+        public void MockingInterface_ShouldReturnConfiguredDifferenceValue_With_FluentAssertions_components()
+        {
+            var result = MockAndReturnValue(x => x.Subtract(10, 20), -10);
+
+            result.Should().Be(-10);
+
+            _mock.Verify(x => x.Subtract(10, 20), Times.Once);
+        }
+
+        [Test]
+        public async Task MockingInterface_ShouldReturnConfiguredProductValue_With_FluentAssertions_components()
+        {
+            var result = MockAndReturnValue(x => x.MultiplyAsync(10, 20).Result, 200);
+
+            result.Should().Be(200);
+
+            _mock.Verify(x => x.MultiplyAsync(10, 20), Times.Once);
+        }
+
+        [Test]
+        public async Task MultiplyAsync_ShouldSetADelay_With_FluentAssertions_components()
+        {
             var mock = new Mock<ICalculatorService>();
 
             var task = _sut.MultiplyAsync(10, 20);
 
-            Assert.That(task.IsCompleted, Is.EqualTo(false));
+            task.IsCompleted.Should().BeFalse();
+        }
+
+        private int MockAndReturnValue(Expression<Func<ICalculatorService, int>> expression, int returnValue)
+        {
+            _mock.Setup(expression).Returns(returnValue);
+
+            return expression.Compile()(_mock.Object);
         }
     }
 }
