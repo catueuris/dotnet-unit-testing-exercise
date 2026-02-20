@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Core.Tests.NUnit/Core.Tests.NUnit.csproj" Id="117d8caf-d24b-4878-bf2b-9488850f3379" />
   <Project Path="Core/Core.csproj" Id="f282dbc2-2a67-496c-8bdd-48c959dadf8a" />
 </Solution>
