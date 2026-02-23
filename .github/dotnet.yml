@@ -1,0 +1,52 @@
+name: .NET Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Restore
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    
+    - name: Test with Code Coverage
+      run: dotnet test --no-build --verbosity normal \
+               /p:CollectCoverage=true \
+               /p:CoverletOutput=./TestResults/coverage/ \
+               /p:CoverletOutputFormat=opencover
+    
+    
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    
+    - name: Generate HTML Coverage Report
+      run: reportgenerator \
+           -reports:**/TestResults/coverage/coverage.opencover.xml \
+           -targetdir:coverage-report \
+           -reporttypes:Html
+
+    - name: Upload coverage XML
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-xml
+        path: "**/TestResults/coverage/coverage.opencover.xml"
+    
+    - name: Upload HTML Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-html
+        path: coverage-report
