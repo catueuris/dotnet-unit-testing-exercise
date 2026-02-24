@@ -36,7 +36,13 @@ jobs:
           /p:CoverletOutput=TestResults/coverage/ \
           /p:CoverletOutputFormat=opencover \
           -bl:msbuild.binlog
- 
+    
+    - name: Upload MSBuild binary log
+      uses: actions/upload-artifact@v4
+      with:
+        name: msbuild-log
+        path: "**/msbuild.binlog"
+
     - name: Debug coverage files
       run: find . -type f -name "coverage.opencover.xml"
 
