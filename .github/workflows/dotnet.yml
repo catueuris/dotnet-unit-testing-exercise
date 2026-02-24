@@ -29,45 +29,36 @@ jobs:
           /p:CoverletOutput=TestResults/coverage/ \
           /p:CoverletOutputFormat=opencover
           
-    - name: Debug MSBuild properties
-      run: |
-        dotnet test \
-          /p:CollectCoverage=true \
-          /p:CoverletOutput=TestResults/coverage/ \
-          /p:CoverletOutputFormat=opencover \
-          -bl:msbuild.binlog
-    
 
-    - name: Debug TestResults tree
+    - name: Debug coverage files
       run: |
         echo "=== find coverage.opencover.xml ==="
         find . -type f -name "coverage.opencover.xml" -print
+        echo "=== find any coverage files ==="
+        find . -type f \( -name "coverage.opencover.xml" -o -name "coverage.xml" -o -name "*.opencover.xml" \) -print
         echo "=== list TestResults ==="
         find . -type d -name "TestResults" -print -exec bash -lc 'ls -R "{}"' \;
 
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
     
-    - name: Debug any coverage files
+    - name: Generate HTML Coverage Report
       run: |
-        echo "=== find any coverage files ==="
-        find . -type f -name "coverage.*.xml" -o -name "coverage.xml" -o -name "*.opencover.xml" -print
+        reportgenerator \
+          -reports:**/TestResults/**/coverage.opencover.xml \
+          -targetdir:coverage-report \
+          -reporttypes:Html
 
-    #- name: Install ReportGenerator
-    #  run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    - name: Upload coverage XML
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-xml
+        path: |
+          **/TestResults/**/coverage.opencover.xml
+          "**/*.opencover.xml"
     
-   # - name: Generate HTML Coverage Report
-     # run: reportgenerator
-      #     -reports:**/coverage.opencover.xml
-      #     -targetdir:coverage-report
-      #     -reporttypes:Html
-
-  #  - name: Upload coverage XML
-  #    uses: actions/upload-artifact@v4
-  #    with:
-   #     name: code-coverage-xml
-   #     path: "**/coverage.opencover.xml"
-    
-    #- name: Upload HTML Report
-    #  uses: actions/upload-artifact@v4
-    #  with:
-     #   name: code-coverage-html
-     #   path: coverage-report
+    - name: Upload HTML Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-html
+        path: coverage-report
