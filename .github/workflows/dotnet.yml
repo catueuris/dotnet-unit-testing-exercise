@@ -1,4 +1,5 @@
-name: .NET Tests
+
+name: .NET Tests & Coverage
 
 on:
   push:
@@ -14,7 +15,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 8.0.x
 
     - name: Restore
       run: dotnet restore
@@ -22,29 +23,33 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
 
-    
-    - name: Test with Code Coverage
-      run: dotnet test --no-build --verbosity normal \
-               /p:CollectCoverage=true \
-               /p:CoverletOutput=./TestResults/coverage/ \
-               /p:CoverletOutputFormat=opencover
-    
-    
+    - name: Test with Code Coverage (XPlat)
+      run: |
+        dotnet test --no-build --verbosity normal \
+          --collect "XPlat Code Coverage" \
+          --results-directory TestResults
+
+    - name: Debug coverage output
+      run: |
+        echo "=== Coverage Files Found ==="
+        find TestResults -type f -name "coverage.cobertura.xml" -print
+
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
-    
-    - name: Generate HTML Coverage Report
-      run: reportgenerator \
-           -reports:**/TestResults/coverage/coverage.opencover.xml \
-           -targetdir:coverage-report \
-           -reporttypes:Html
 
-    - name: Upload coverage XML
+    - name: Generate HTML Coverage Report
+      run: |
+        reportgenerator \
+          -reports:"TestResults/**/coverage.cobertura.xml" \
+          -targetdir:"coverage-report" \
+          -reporttypes:"Html"
+
+    - name: Upload Coverage XML
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-xml
-        path: "**/TestResults/coverage/coverage.opencover.xml"
-    
+        path: TestResults/**/coverage.cobertura.xml
+
     - name: Upload HTML Report
       uses: actions/upload-artifact@v4
       with:
