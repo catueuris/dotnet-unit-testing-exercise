@@ -22,43 +22,17 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
 
-    - name: Test with Code Coverage
+
+    - name: Test with Code Coverage + TRX
       run: |
         dotnet test --no-build --verbosity normal \
           /p:CollectCoverage=true \
           /p:CoverletOutput=TestResults/coverage/ \
-          /p:CoverletOutputFormat=opencover
-          
-
-    - name: Debug coverage files
-      run: |
-        echo "=== find coverage.opencover.xml ==="
-        find . -type f -name "coverage.opencover.xml" -print
-        echo "=== find any coverage files ==="
-        find . -type f \( -name "coverage.opencover.xml" -o -name "coverage.xml" -o -name "*.opencover.xml" \) -print
-        echo "=== list TestResults ==="
-        find . -type d -name "TestResults" -print -exec bash -lc 'ls -R "{}"' \;
-
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-    
-    - name: Generate HTML Coverage Report
-      run: |
-        reportgenerator \
-          -reports:**/*.opencover.xml \
-          -targetdir:coverage-report \
-          -reporttypes:Html
-
-    - name: Upload coverage XML
+          /p:CoverletOutputFormat=opencover \
+          --logger "trx;LogFileName=test-results.trx"
+         
+    - name: Upload TestResults
       uses: actions/upload-artifact@v4
       with:
-        name: code-coverage-xml
-        path: |
-          **/TestResults/**/coverage.opencover.xml
-          "**/*.opencover.xml"
-    
-    - name: Upload HTML Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-html
-        path: coverage-report
+        name: test-results
+        path: "**/TestResults/**"
