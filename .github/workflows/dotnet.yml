@@ -37,14 +37,19 @@ jobs:
           /p:CoverletOutputFormat=opencover \
           -bl:msbuild.binlog
     
-    - name: Upload MSBuild binary log
-      uses: actions/upload-artifact@v4
-      with:
-        name: msbuild-log
-        path: "**/msbuild.binlog"
 
-    - name: Debug coverage files
-      run: find . -type f -name "coverage.opencover.xml"
+    - name: Debug TestResults tree
+      run: |
+        echo "=== find coverage.opencover.xml ==="
+        find . -type f -name "coverage.opencover.xml" -print
+        echo "=== list TestResults ==="
+        find . -type d -name "TestResults" -print -exec bash -lc 'ls -R "{}"' \;
+
+    
+    - name: Debug any coverage files
+      run: |
+        echo "=== find any coverage files ==="
+        find . -type f -name "coverage.*.xml" -o -name "coverage.xml" -o -name "*.opencover.xml" -print
 
     #- name: Install ReportGenerator
     #  run: dotnet tool install -g dotnet-reportgenerator-globaltool
