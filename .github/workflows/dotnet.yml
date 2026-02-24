@@ -22,19 +22,17 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
 
-    
     - name: Test with Code Coverage
       run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true
-           /p:CoverletOutput=./TestResults/coverage/ /p:CoverletOutputFormat=opencover
-    
+           /p:CoverletOutput=TestResults/coverage/ /p:CoverletOutputFormat=opencover
     
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
     
     - name: Generate HTML Coverage Report
-      run: reportgenerator \
-           -reports:**/coverage.opencover.xml \
-           -targetdir:coverage-report \
+      run: reportgenerator
+           -reports:**/coverage.opencover.xml
+           -targetdir:coverage-report
            -reporttypes:Html
 
     - name: Upload coverage XML
