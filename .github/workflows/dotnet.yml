@@ -40,23 +40,23 @@ jobs:
     - name: Debug coverage files
       run: find . -type f -name "coverage.opencover.xml"
 
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    #- name: Install ReportGenerator
+    #  run: dotnet tool install -g dotnet-reportgenerator-globaltool
     
-    - name: Generate HTML Coverage Report
-      run: reportgenerator
-           -reports:**/coverage.opencover.xml
-           -targetdir:coverage-report
-           -reporttypes:Html
+   # - name: Generate HTML Coverage Report
+     # run: reportgenerator
+      #     -reports:**/coverage.opencover.xml
+      #     -targetdir:coverage-report
+      #     -reporttypes:Html
 
-    - name: Upload coverage XML
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-xml
-        path: "**/coverage.opencover.xml"
+  #  - name: Upload coverage XML
+  #    uses: actions/upload-artifact@v4
+  #    with:
+   #     name: code-coverage-xml
+   #     path: "**/coverage.opencover.xml"
     
-    - name: Upload HTML Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-html
-        path: coverage-report
+    #- name: Upload HTML Report
+    #  uses: actions/upload-artifact@v4
+    #  with:
+     #   name: code-coverage-html
+     #   path: coverage-report
