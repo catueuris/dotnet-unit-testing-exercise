@@ -45,7 +45,7 @@ jobs:
     - name: Generate HTML Coverage Report
       run: |
         reportgenerator \
-          -reports:**/TestResults/**/coverage.opencover.xml \
+          -reports:**/*.opencover.xml \
           -targetdir:coverage-report \
           -reporttypes:Html
 
