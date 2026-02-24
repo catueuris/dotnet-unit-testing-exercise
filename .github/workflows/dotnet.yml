@@ -28,7 +28,15 @@ jobs:
           /p:CollectCoverage=true \
           /p:CoverletOutput=TestResults/coverage/ \
           /p:CoverletOutputFormat=opencover
-    
+          
+    - name: Debug MSBuild properties
+      run: |
+        dotnet test \
+          /p:CollectCoverage=true \
+          /p:CoverletOutput=TestResults/coverage/ \
+          /p:CoverletOutputFormat=opencover \
+          -bl:msbuild.binlo
+ 
     - name: Debug coverage files
       run: find . -type f -name "coverage.opencover.xml"
 
