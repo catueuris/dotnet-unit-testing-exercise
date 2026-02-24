@@ -24,10 +24,8 @@ jobs:
 
     
     - name: Test with Code Coverage
-      run: dotnet test --no-build --verbosity normal \
-               /p:CollectCoverage=true \
-               /p:CoverletOutput=./TestResults/coverage/ \
-               /p:CoverletOutputFormat=opencover
+      run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true
+           /p:CoverletOutput=./TestResults/coverage/ /p:CoverletOutputFormat=opencover
     
     
     - name: Install ReportGenerator
