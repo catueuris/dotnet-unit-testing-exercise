@@ -33,7 +33,7 @@ jobs:
     
     - name: Generate HTML Coverage Report
       run: reportgenerator \
-           -reports:**/TestResults/coverage/coverage.opencover.xml \
+           -reports:**/coverage.opencover.xml \
            -targetdir:coverage-report \
            -reporttypes:Html
 
@@ -41,7 +41,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-xml
-        path: "**/TestResults/coverage/coverage.opencover.xml"
+        path: "**/coverage.opencover.xml"
     
     - name: Upload HTML Report
       uses: actions/upload-artifact@v4
